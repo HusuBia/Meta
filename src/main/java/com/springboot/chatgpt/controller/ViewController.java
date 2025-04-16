@@ -8,6 +8,6 @@ public class ViewController {
 
     @GetMapping("/")
     public String home() {
-        return "test"; // nume fisier html, pe care il ai in templates
+        return "test";
     }
 }
