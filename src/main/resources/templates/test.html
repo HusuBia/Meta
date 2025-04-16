@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Career Advisor AI</title>
+</head>
+<body>
+<h2>Întreabă AI-ul despre carieră:</h2>
+<textarea id="prompt" rows="4" cols="50" placeholder="Scrie o întrebare..."></textarea><br><br>
+<button onclick="sendPrompt()">Trimite</button>
+<p><strong>Răspuns:</strong></p>
+<div id="response" style="white-space: pre-line;"></div>
+
+<script>
+    function sendPrompt() {
+        const prompt = document.getElementById("prompt").value;
+
+        fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ prompt })
+        })
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById("response").innerText = data;
+            })
+            .catch(err => {
+                document.getElementById("response").innerText = "A apărut o eroare: " + err;
+            });
+    }
+</script>
+</body>
+</html>
