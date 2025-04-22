@@ -1,5 +1,6 @@
 package com.springboot.chatgpt.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -16,8 +17,9 @@ public class InterviewSession {
 
     @Column(columnDefinition = "TEXT")
     private String firstQuestion;
-
+    
     @ManyToOne
+    @JsonBackReference
     private User user;
 
     public Long getId() {

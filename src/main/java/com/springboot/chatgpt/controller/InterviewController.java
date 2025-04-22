@@ -4,6 +4,7 @@ import com.springboot.chatgpt.dto.InterviewChatRequest;
 import com.springboot.chatgpt.dto.InterviewResponse;
 import com.springboot.chatgpt.dto.StartInterviewRequest;
 import com.springboot.chatgpt.model.InterviewSession;
+import com.springboot.chatgpt.model.Role;
 import com.springboot.chatgpt.model.User;
 import com.springboot.chatgpt.repository.UserRepository;
 import com.springboot.chatgpt.service.InterviewService;
@@ -32,7 +33,7 @@ public class InterviewController {
             u.setFullName("Demo");
             u.setEmail("demo@test.com");
             u.setPassword("1234");
-            u.setRole("USER");
+            u.setRole(Role.USER);
             userRepository.save(u);
         }
     }

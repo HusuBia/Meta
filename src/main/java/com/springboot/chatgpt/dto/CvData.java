@@ -1,20 +1,32 @@
 package com.springboot.chatgpt.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class CvData {
+    private String title;
     private String fullName;
     private String email;
     private String phone;
     private String address;
     private String dateOfBirth;
     private String nationality;
+    private String aboutMe;
 
     private List<EducationEntry> education;
     private List<ExperienceEntry> experience;
+    private List<ProjectsEntry> projects;
     private List<String> languages;
-    private List<String> digitalSkills;
+    private Map<String, Integer> digitalSkills;
     private List<String> softSkills;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getFullName() {
         return fullName;
@@ -88,11 +100,11 @@ public class CvData {
         this.languages = languages;
     }
 
-    public List<String> getDigitalSkills() {
+    public Map<String, Integer> getDigitalSkills() {
         return digitalSkills;
     }
 
-    public void setDigitalSkills(List<String> digitalSkills) {
+    public void setDigitalSkills(Map<String, Integer> digitalSkills) {
         this.digitalSkills = digitalSkills;
     }
 
@@ -102,5 +114,21 @@ public class CvData {
 
     public void setSoftSkills(List<String> softSkills) {
         this.softSkills = softSkills;
+    }
+
+    public String getAboutMe() {
+        return aboutMe;
+    }
+
+    public void setAboutMe(String aboutMe) {
+        this.aboutMe = aboutMe;
+    }
+
+    public List<ProjectsEntry> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<ProjectsEntry> projects) {
+        this.projects = projects;
     }
 }
