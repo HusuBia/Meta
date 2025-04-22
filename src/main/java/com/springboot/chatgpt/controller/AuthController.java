@@ -4,6 +4,7 @@ import com.springboot.chatgpt.dto.AuthRequest;
 import com.springboot.chatgpt.dto.RegisterRequest;
 import com.springboot.chatgpt.dto.UserProfileResponse;
 import com.springboot.chatgpt.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,13 +18,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
-        userService.register(request);
-        return "User registered!";
+    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) {
+        return userService.register(request);
     }
 
     @PostMapping("/login")
-    public UserProfileResponse login(@RequestBody AuthRequest request) {
+    public ResponseEntity<UserProfileResponse> loginUser(@RequestBody AuthRequest request) {
         return userService.login(request);
     }
 }
