@@ -31,21 +31,21 @@ export default function MentorMeetings() {
   const [editMeeting, setEditMeeting] = useState<ScheduledMeeting | null>(null);
   const [editData, setEditData] = useState({ date: '', time: '' });
 
-  // Încarcă mentorul și întâlnirile
+  //incarcare mentor + intalniri
   useEffect(() => {
     try {
       const savedMentor = localStorage.getItem('selectedMentor');
       if (savedMentor) {
         setMentor(JSON.parse(savedMentor));
       } else {
-        router.push('/mentor-dashboard');
+        setMentor(null);
         return;
       }
 
       const savedMeetings = localStorage.getItem('scheduledMeetings');
       if (savedMeetings) {
         const allMeetings = JSON.parse(savedMeetings);
-        // Filtrează întâlnirile pentru mentorul curent
+        // intalniri pentru mentorul curent
         const mentorMeetings = allMeetings.filter(
           (meeting: ScheduledMeeting) => meeting.mentorEmail === JSON.parse(savedMentor).email
         );
@@ -57,7 +57,7 @@ export default function MentorMeetings() {
     }
   }, [router]);
 
-  // Confirmă o întâlnire
+  // confirmare intalnire
   const confirmMeeting = (meeting: ScheduledMeeting) => {
     try {
       const updatedMeeting = { ...meeting, status: 'confirmed' };
@@ -83,19 +83,19 @@ export default function MentorMeetings() {
     }
   };
 
-  // Deschide formularul de reprogramare
+  // deschidere formular pt reprogramare
   const startReschedule = (meeting: ScheduledMeeting) => {
     setEditMeeting(meeting);
     setEditData({ date: meeting.date, time: meeting.time });
   };
 
-  // Gestionează schimbările în formularul de reprogramare
+  // gestionare sachimbari in formularul de reprogramare
   const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEditData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Salvează reprogramarea
+  // save programare
   const saveReschedule = (meeting: ScheduledMeeting) => {
     if (!editData.date || !editData.time) {
       alert('Please fill in both date and time.');
@@ -127,20 +127,24 @@ export default function MentorMeetings() {
     }
   };
 
-  // Anulează reprogramarea
+  // anulla programare
   const cancelReschedule = () => {
     setEditMeeting(null);
     setEditData({ date: '', time: '' });
   };
 
-  // Redirecționează înapoi la dashboard-ul mentorilor
+  const goBack = () => {
+    router.push('/dashboard/mentor');
+  };
+
+ /* // Redirecționează înapoi la dashboard-ul mentorilor
   const goBack = () => {
     router.push('/dashboard/mentor');
   };
 
   if (!mentor) {
-    return null; // Așteaptă redirecționarea dacă mentorul nu este încărcat
-  }
+    return null; 
+  }*/
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 p-8">
@@ -207,7 +211,7 @@ export default function MentorMeetings() {
                         </div>
                       </div>
                     ) : (
-                      // Afișare întâlnire
+                      // afisare intalnire
                       <div className="flex justify-between items-start">
                         <div className="space-y-1">
                           <p><strong>User:</strong> {meeting.user}</p>

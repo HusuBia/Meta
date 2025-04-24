@@ -58,9 +58,15 @@ export default function ManagerDashboard() {
         <Card>
           <CardContent className="p-6 space-y-4">
             <h2 className="text-xl font-bold text-purple-700">Mentor Management</h2>
-            <Button variant="outline">Approve New Requests</Button>
-            <Button variant="outline">Edit Mentor Profiles</Button>
-            <Button variant="destructive">Remove Mentor</Button>
+            <Button variant="outline" onClick={() => router.push('/ApproveMentor')}>
+             Approve New Requests
+            </Button>
+            <Button
+      onClick={() => router.push('/RemoveMentor')}
+      variant="destructive"
+    >
+      Remove Mentor
+    </Button>
           </CardContent>
         </Card>
 
@@ -77,7 +83,9 @@ export default function ManagerDashboard() {
         <Card>
           <CardContent className="p-6 space-y-4">
             <h2 className="text-xl font-bold text-purple-700">Feedback & Reviews</h2>
-            <Button variant="outline">View Feedback</Button>
+            <Button variant="outline" onClick={() => router.push('/ViewFeedback')}>
+  View Feedback
+</Button>
             <Button variant="outline">Respond to Reviews</Button>
           </CardContent>
         </Card>

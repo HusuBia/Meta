@@ -1,15 +1,40 @@
 'use client'
-
 import { useState } from 'react'
 import Link from 'next/link'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login:', { email, password })
+
+    try {
+      // Trimite cererea POST către backend
+      const response = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      })
+
+      // Verifică răspunsul de la server
+      if (!response.ok) {
+        const errorData = await response.json()
+        setErrorMessage(errorData.message || 'Login failed')
+      } else {
+        // Dacă login-ul este reușit, redirecționează utilizatorul sau afișează mesajul de succes
+        console.log('Login successful')
+      }
+    } catch (error) {
+      setErrorMessage('Something went wrong')
+      console.error('Error during login:', error)
+    }
   }
 
   return (
@@ -44,8 +69,13 @@ export default function LoginPage() {
             Login
           </button>
         </form>
+
+        {errorMessage && (
+          <p className="text-red-600 text-center mt-4">{errorMessage}</p>
+        )}
+
         <p className="text-center text-sm text-gray-500 mt-4">
-          Don't have an account? <Link  href="/signUp" className="text-purple-600 hover:underline">Sign up</Link>
+          Don't have an account? <Link href="/signUp" className="text-purple-600 hover:underline">Sign up</Link>
         </p>
       </div>
     </main>

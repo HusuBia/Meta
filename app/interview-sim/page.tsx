@@ -7,40 +7,30 @@ import { useRouter } from 'next/navigation';
 
 export default function InterviewSimulation() {
   const router = useRouter();
-  const [currentQuestion, setCurrentQuestion] = useState('Sample question: Tell me about yourself.');
+  const [sessionId, setSessionId] = useState<number | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState('');
   const [userAnswer, setUserAnswer] = useState('');
   const [questionCount, setQuestionCount] = useState(1);
-  const [totalQuestions] = useState(10); // Presupunem 10 întrebări în total
-  const [timer, setTimer] = useState(60); // 60 secunde per întrebare
+  const [totalQuestions] = useState(10);
+  const [timer, setTimer] = useState(60);
   const [feedback, setFeedback] = useState('');
+  const [jobTitle] = useState('Software Engineer');
 
-  // Gestionarea răspunsului utilizatorului
-  const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserAnswer(e.target.value);
-  };
+  // Pornește interviul când se încarcă pagina
+  useEffect(() => {
+    const startInterview = async () => {
+      const res = await fetch('http://localhost:8080/interview/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jobTitle })
+      });
+      const data = await res.json();
+      setSessionId(data.id);
+      setCurrentQuestion(data.firstQuestion);
+    };
 
-  // Funcție pentru trimiterea răspunsului
-  const submitAnswer = () => {
-    alert('Answer submitted! (This would send the answer to the backend.)');
-    setFeedback('Sample feedback: Good response, but consider adding more specific examples.');
-    setUserAnswer('');
-  };
-
-  // Funcție pentru următoarea întrebare
-  const nextQuestion = () => {
-    setCurrentQuestion(`Sample question: What are your strengths? (Question ${questionCount + 1})`);
-    setUserAnswer('');
-    setFeedback('');
-    setQuestionCount((prev) => prev + 1);
-    setTimer(60); // Resetează timer-ul
-    alert('Next question loaded! (This would fetch a new question from the backend.)');
-  };
-
-  // Funcție pentru finalizarea simulării
-  const finishSimulation = () => {
-    alert('Interview simulation completed! Redirecting to dashboard...');
-    router.push('/dashboard'); // Redirecționează înapoi la dashboard
-  };
+    startInterview();
+  }, [jobTitle]);
 
   // Timer logic
   useEffect(() => {
@@ -52,6 +42,35 @@ export default function InterviewSimulation() {
     }
   }, [timer]);
 
+  // Trimitere răspuns
+  const submitAnswer = async () => {
+    if (!sessionId) return;
+    const res = await fetch('http://localhost:8080/interview/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId,
+        userMessage: userAnswer
+      })
+    });
+    const data = await res.json();
+
+    // Extrage următoarea întrebare și feedback
+    const feedbackText = data.feedback || 'No feedback available';
+    const nextQuestion = data.response?.split('2.')[1]?.split('3.')[0]?.trim() || 'Next question not found.';
+
+    setFeedback(feedbackText);
+    setCurrentQuestion(nextQuestion);
+    setUserAnswer('');
+    setQuestionCount((prev) => prev + 1);
+    setTimer(60);
+  };
+
+  const finishSimulation = () => {
+    alert('Interview simulation completed! Redirecting to dashboard...');
+    router.push('/dashboard');
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 p-8">
       <div className="max-w-6xl mx-auto">
@@ -61,7 +80,6 @@ export default function InterviewSimulation() {
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Panou principal cu întrebare și răspuns */}
           <div className="lg:col-span-3">
             <Card className="shadow-xl hover:shadow-2xl transition-shadow duration-300">
               <CardHeader>
@@ -70,17 +88,14 @@ export default function InterviewSimulation() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Timer */}
                 <div className="text-right text-sm text-gray-600">
                   Time remaining: <span className="font-bold text-purple-600">{timer}s</span>
                 </div>
 
-                {/* Afișare întrebare */}
                 <div className="bg-gray-100 p-4 rounded-lg border border-gray-200">
                   <p className="text-lg font-medium text-gray-800">{currentQuestion}</p>
                 </div>
 
-                {/* Câmp pentru răspuns */}
                 <div>
                   <label htmlFor="answer" className="block text-sm font-medium text-gray-700 mb-2">
                     Your Answer
@@ -88,14 +103,13 @@ export default function InterviewSimulation() {
                   <textarea
                     id="answer"
                     value={userAnswer}
-                    onChange={handleAnswerChange}
+                    onChange={(e) => setUserAnswer(e.target.value)}
                     rows={6}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 transition-all duration-200"
                     placeholder="Type your answer here..."
                   />
                 </div>
 
-                {/* Feedback (dacă există) */}
                 {feedback && (
                   <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
                     <p className="text-sm text-purple-700">
@@ -104,7 +118,6 @@ export default function InterviewSimulation() {
                   </div>
                 )}
 
-                {/* Butoane acțiuni */}
                 <div className="flex justify-between">
                   <Button
                     onClick={submitAnswer}
@@ -113,18 +126,10 @@ export default function InterviewSimulation() {
                   >
                     Submit Answer
                   </Button>
-                  <Button
-                    onClick={nextQuestion}
-                    className="bg-gray-600 text-white px-6 py-2 rounded-xl hover:bg-gray-700 transition-all duration-300 shadow-md"
-                    disabled={questionCount >= totalQuestions}
-                  >
-                    Next Question
-                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Buton pentru finalizare */}
             <div className="mt-6 flex justify-end">
               <Button
                 onClick={finishSimulation}
@@ -135,7 +140,6 @@ export default function InterviewSimulation() {
             </div>
           </div>
 
-          {/* Panou lateral cu progres */}
           <div className="lg:col-span-1">
             <Card className="shadow-lg sticky top-8">
               <CardHeader>

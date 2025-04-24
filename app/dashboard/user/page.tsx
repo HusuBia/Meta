@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { FaClipboardList, FaCalendarAlt, FaEnvelope, FaComments, FaSearch, FaUserFriends } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 
 const messages = [
   "Keep smiling 😊",
@@ -24,15 +23,18 @@ export default function UserDashboard() {
     address: '',
     description: '',
   });
+
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const router = useRouter();
 
-  // Încarcă citatul aleator
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * messages.length);
     setQuote(messages[randomIndex]);
   }, []);
 
-  // Încarcă datele de profil din localStorage
   useEffect(() => {
     try {
       const savedData = localStorage.getItem('profileData');
@@ -45,54 +47,66 @@ export default function UserDashboard() {
     }
   }, []);
 
+  const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+    setQuestion(e.target.value);
+  };
+
+  const askCareerAI = async () => {
+    setLoading(true);
+    setAnswer('');
+    try {
+      const response = await fetch('http://localhost:8080/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: question }),
+      });
+
+      if (response.ok) {
+        const data = await response.text(); // pentru string simplu
+        setAnswer(data);
+      } else {
+        setAnswer('Error: Unable to get a response from the server.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setAnswer('Error: Failed to connect to the server.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r shadow-md p-6 space-y-4">
         <h2 className="text-xl font-bold text-purple-700 mb-4">NextStep</h2>
         <nav className="space-y-3">
-          <div
-            className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-            onClick={() => router.push('/profile-user')}
-          >
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/profile-user')}>
             <span className="text-lg">👤</span>
             <span className="font-medium">Profile</span>
           </div>
-          <div
-            className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-            onClick={() => router.push('/cvTools')}
-          >
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/cvTools')}>
             <span className="text-lg">📄</span>
             <span className="font-medium">CV Tools</span>
           </div>
-          <div
-            className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-            onClick={() => router.push('/interview-sim')}
-          >
-            <span className="text-lg">📄</span>
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/interview-sim')}>
+            <span className="text-lg">🗣️</span>
             <span className="font-medium">Interview Sim</span>
           </div>
-          <div
-  className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-  onClick={() => router.push('/mentors')}
->
-  <FaUserFriends /> Mentors
-</div>
-          <div
-  className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-  onClick={() => router.push('/calendar')}
->
-  <FaCalendarAlt /> Calendar
-</div>
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/mentors')}>
+            <FaUserFriends /> Mentors
+          </div>
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/calendar')}>
+            <FaCalendarAlt /> Calendar
+          </div>
           <a href="#jobs" className="flex items-center gap-2 text-gray-700 hover:text-purple-600">
             <FaEnvelope /> Job Alerts
           </a>
-          <div
-  className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer"
-  onClick={() => router.push('/personality-test')}
->
-<FaClipboardList/>Personality Test
-</div>
+          <div className="flex items-center gap-2 text-gray-700 hover:text-purple-600 cursor-pointer" onClick={() => router.push('/personality-test')}>
+            <FaClipboardList /> Personality Test
+          </div>
         </nav>
       </aside>
 
@@ -101,7 +115,7 @@ export default function UserDashboard() {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome back!</h1>
         <p className="text-lg text-purple-600 mb-6">{quote}</p>
 
-        {/* Profile section */}
+        {/* Profile */}
         <section id="profile" className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Profile</h2>
           {profileData.fullName ? (
@@ -117,33 +131,31 @@ export default function UserDashboard() {
           ) : (
             <p className="text-gray-600">
               Complete your profile to see your details here.{' '}
-              <span
-                className="text-purple-600 hover:underline cursor-pointer"
-                onClick={() => router.push('/profile-user')}
-              >
+              <span className="text-purple-600 hover:underline cursor-pointer" onClick={() => router.push('/profile-user')}>
                 Go to Profile
               </span>
             </p>
           )}
         </section>
 
-        {/* Placeholder sections */}
+        {/* Ask Career AI */}
         <section id="ai-search" className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Ask Career AI</h2>
-          <div className="relative">
+          <div className="relative mb-4">
             <input
               type="text"
+              value={question}
+              onChange={handleInputChange}
               placeholder="Ask something..."
               className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500"
             />
-            <FaSearch className="absolute right-3 top-3 text-gray-400" />
+            <FaSearch className="absolute right-3 top-3 text-gray-400 cursor-pointer" onClick={askCareerAI} />
           </div>
+          {loading && <p className="text-purple-600">Thinking...</p>}
+          {answer && <div className="mt-2 p-4 bg-gray-100 rounded-lg border">{answer}</div>}
         </section>
 
-        <button
-          onClick={() => router.push('/signUp')}
-          className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition"
-        >
+        <button onClick={() => router.push('/signUp')} className="bg-purple-600 text-white px-6 py-2 rounded-xl hover:bg-purple-700 transition">
           ⬅ Back
         </button>
       </main>

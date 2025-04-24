@@ -26,7 +26,9 @@ export default function Mentors() {
     try {
       const savedMentors = localStorage.getItem('mentors');
       if (savedMentors) {
-        setMentors(JSON.parse(savedMentors));
+        const mentorsData = JSON.parse(savedMentors);
+        console.log(mentorsData);
+        //setMentors(JSON.parse(savedMentors));
       }
 
       const savedSelectedMentor = localStorage.getItem('selectedMentor');
