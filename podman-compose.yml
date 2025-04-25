@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: career-db
+    environment:
+      MYSQL_ROOT_PASSWORD: miruMySQL11.10
+      MYSQL_DATABASE: career_db
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    volumes:
+      - career_db_data:/var/lib/mysql
+      - ./career_db_dump.sql:/docker-entrypoint-initdb.d/career_db_dump.sql
+
+
+
+  springboot-app:
+    image: eclipse-temurin:23-jdk
+    container_name: spring-app
+    depends_on:
+      - mysql
+    volumes:
+      - ./build/libs/CareerAdvisorAI-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    command: ["java", "-jar", "app.jar"]
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/career_db
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+
+volumes:
+  career_db_data:
+
