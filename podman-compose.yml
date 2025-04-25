@@ -24,7 +24,7 @@ services:
     depends_on:
       - mysql
     volumes:
-      - ./build/libs/CareerAdvisorAI-0.0.1-SNAPSHOT.jar:/app/app.jar
+      - ./build/libs/spring-app-0.0.1-SNAPSHOT.jar:/app/app.jar
     working_dir: /app
     command: ["java", "-jar", "app.jar"]
     ports:
