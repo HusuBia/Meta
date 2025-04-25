@@ -21,7 +21,6 @@ export default function Mentors() {
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
 
-  // Încarcă mentorii și mentorul selectat din localStorage
   useEffect(() => {
     try {
       const savedMentors = localStorage.getItem('mentors');
@@ -40,19 +39,18 @@ export default function Mentors() {
     }
   }, []);
 
-  // Selectează un mentor și redirecționează
+  // select mentor si redirectioneaza
   const selectMentor = (mentor: Mentor) => {
     try {
       localStorage.setItem('selectedMentor', JSON.stringify(mentor));
       setSelectedMentor(mentor);
-      router.push('/mentor-interaction'); // Redirecționează către pagina de interacțiune
+      router.push('/mentor-interaction');
     } catch (error) {
       console.error('Error saving selected mentor:', error);
       alert('Failed to select mentor. Please try again.');
     }
   };
 
-  // Deselectează mentorul
   const unselectMentor = () => {
     try {
       localStorage.removeItem('selectedMentor');
@@ -64,7 +62,6 @@ export default function Mentors() {
     }
   };
 
-  // Redirecționează înapoi la dashboard
   const goBack = () => {
     router.push('/dashboard/user');
   };

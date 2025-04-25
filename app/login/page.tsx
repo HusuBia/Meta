@@ -11,7 +11,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     try {
-      // Trimite cererea POST către backend
+      // trimite cerere post catre backend
       const response = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
         headers: {
@@ -23,12 +23,11 @@ export default function LoginPage() {
         }),
       })
 
-      // Verifică răspunsul de la server
+      // verific raspuns de la server
       if (!response.ok) {
         const errorData = await response.json()
         setErrorMessage(errorData.message || 'Login failed')
       } else {
-        // Dacă login-ul este reușit, redirecționează utilizatorul sau afișează mesajul de succes
         console.log('Login successful')
       }
     } catch (error) {

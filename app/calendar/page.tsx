@@ -16,7 +16,7 @@ export default function Calendar() {
   const [events, setEvents] = useState<Event[]>([]);
   const [newEvent, setNewEvent] = useState<Event>({ date: '', title: '', description: '' });
 
-  // Încarcă evenimentele din localStorage
+  // incarcare evenimente din local storage
   useEffect(() => {
     try {
       const savedEvents = localStorage.getItem('calendarEvents');
@@ -28,13 +28,13 @@ export default function Calendar() {
     }
   }, []);
 
-  // Gestionarea schimbărilor în formular
+  // gestionare schimbari in formular
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewEvent((prevEvent) => ({ ...prevEvent, [name]: value }));
   };
 
-  // Adaugă un nou eveniment
+  // add nou eveniment
   const addEvent = () => {
     if (!newEvent.date || !newEvent.title) {
       alert('Please fill in the date and title.');
@@ -47,7 +47,6 @@ export default function Calendar() {
     setNewEvent({ date: '', title: '', description: '' }); // Resetează formularul
   };
 
-  // Redirecționează înapoi la dashboard
   const goBack = () => {
     router.push('/dashboard/user');
   };
@@ -126,7 +125,7 @@ export default function Calendar() {
           </CardContent>
         </Card>
 
-        {/* Lista de evenimente */}
+        {/* lista de evenimente*/}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-purple-700">Your Events</CardTitle>

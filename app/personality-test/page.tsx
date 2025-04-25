@@ -14,7 +14,7 @@ export default function PersonalityTest() {
   const router = useRouter();
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
 
-  // Mock data pentru întrebări (fără opțiuni, răspunsurile vor fi text liber)
+  // Mock data pentru intrebări (fara optiuni, raspunsurile vor fi text liber)
   const questions: Question[] = [
     {
       id: 1,
@@ -30,7 +30,6 @@ export default function PersonalityTest() {
     },
   ];
 
-  // Gestionează schimbările în răspunsuri
   const handleAnswerChange = (questionId: number, answer: string) => {
     setAnswers((prevAnswers) => ({
       ...prevAnswers,
@@ -40,25 +39,21 @@ export default function PersonalityTest() {
 
   // Trimite răspunsurile (logica va fi implementată ulterior)
   const submitTest = () => {
-    // Verifică dacă toate întrebările au răspunsuri
     const allAnswered = questions.every((question) => answers[question.id] && answers[question.id].trim() !== '');
     if (!allAnswered) {
       alert('Please answer all questions before submitting.');
       return;
     }
 
-    // Simulează trimiterea către backend
+    // trimitere catre backend (simulare)
     console.log('Submitted answers:', answers);
     alert('Personality test submitted successfully! Results will be available soon.');
 
-    // Opțional: Salvează răspunsurile în localStorage
     localStorage.setItem('personalityTestAnswers', JSON.stringify(answers));
 
-    // Redirecționează înapoi la dashboard
     router.push('/dashboard/user');
   };
 
-  // Redirecționează înapoi la dashboard-ul utilizatorului
   const goBack = () => {
     router.push('/dashboard/user');
   };

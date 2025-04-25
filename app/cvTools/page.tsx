@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 export default function CVTools() {
   const router = useRouter();
 
-  // State pentru a păstra valorile din formular
+  // pastrare val din formular
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -25,13 +25,13 @@ export default function CVTools() {
     additionalInfo: '',
   });
 
-  // Gestionarea schimbărilor în câmpurile formularului
+  // gestionare schimbari in formular
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Funcția de generare a CV-ului
+  // functie de generare cv
   const generateCV = () => {
     alert('CV generated! (Here we would generate a downloadable PDF or preview.)');
   };
@@ -44,7 +44,7 @@ export default function CVTools() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Formular CV */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Informații Personale */}
+            {/* info personale */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Personal Information</CardTitle>
@@ -122,7 +122,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Obiectiv Profesional */}
+            {/* obiectiv profesional */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Professional Objective</CardTitle>
@@ -140,7 +140,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Experiență Profesională */}
+            {/* experienta profesionala */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Professional Experience</CardTitle>
@@ -158,7 +158,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Educație */}
+            {/* educatie */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Education</CardTitle>
@@ -176,7 +176,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Abilități */}
+            {/* abilitati */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Skills</CardTitle>
@@ -194,7 +194,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Limbi Străine */}
+            {/* limbi */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Languages</CardTitle>
@@ -212,7 +212,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Certificări */}
+            {/* certificari */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Certifications</CardTitle>
@@ -230,7 +230,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Hobby-uri */}
+            {/* pasiuni */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Hobbies</CardTitle>
@@ -248,7 +248,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Informații Suplimentare */}
+            {/* info suplimentare */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Additional Information</CardTitle>
@@ -266,7 +266,7 @@ export default function CVTools() {
               </CardContent>
             </Card>
 
-            {/* Buton Generare CV */}
+            {/* generare cv */}
             <div className="flex justify-end">
               <Button
                 onClick={generateCV}
@@ -277,7 +277,7 @@ export default function CVTools() {
             </div>
           </div>
 
-          {/* Preview CV (Placeholder) */}
+          {/* preview cv */}
           <div className="lg:col-span-1">
             <Card className="shadow-lg sticky top-8">
               <CardHeader>
@@ -292,7 +292,6 @@ export default function CVTools() {
                   <p className="text-sm text-gray-600 mt-2">
                     <strong>Experience:</strong> {formData.experience || 'Your experience...'}
                   </p>
-                  {/* Adaugă mai multe secțiuni pentru preview dacă dorești */}
                   <p className="text-sm text-gray-500 mt-4 italic">This is a placeholder preview. Generate CV to see the full version.</p>
                 </div>
               </CardContent>

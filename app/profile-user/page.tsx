@@ -18,8 +18,6 @@ export default function Profile() {
     description: '',
   });
 
-  // Încarcă datele salvate din localStorage (dacă există)
-
   useEffect(() => {
     const savedData = localStorage.getItem('profileData');
     if (savedData) {
@@ -27,13 +25,11 @@ export default function Profile() {
     }
   }, []);
 
-  // Gestionarea schimbărilor în formular
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Salvează datele și redirecționează
   const saveProfile = () => {
     localStorage.setItem('profileData', JSON.stringify(formData));
     alert('Profile saved successfully!');

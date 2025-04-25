@@ -36,14 +36,12 @@ export default function MentorInteraction() {
   const [meetingData, setMeetingData] = useState({ date: '', time: '' });
   const [reviewData, setReviewData] = useState({ rating: 0, review: '' });
 
-  // Încarcă mentorul selectat din localStorage
   useEffect(() => {
     try {
       const savedSelectedMentor = localStorage.getItem('selectedMentor');
       if (savedSelectedMentor) {
         setSelectedMentor(JSON.parse(savedSelectedMentor));
       } else {
-        // Dacă nu există mentor selectat, redirecționează înapoi la lista de mentori
         router.push('/mentors');
       }
     } catch (error) {
@@ -52,19 +50,19 @@ export default function MentorInteraction() {
     }
   }, [router]);
 
-  // Gestionarea schimbărilor pentru programare
+  // gestionare schimbari pt programare
   const handleMeetingInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setMeetingData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Gestionarea schimbărilor pentru recenzie
+  // gestionare schimbari pt recenzie
   const handleReviewInputChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setReviewData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Programează o discuție
+  // programare discutie
   const scheduleMeeting = () => {
     if (!meetingData.date || !meetingData.time) {
       alert('Please fill in both date and time.');
@@ -77,7 +75,7 @@ export default function MentorInteraction() {
     }
 
     try {
-      const userEmail = localStorage.getItem('userEmail') || 'user@example.com'; // Placeholder pentru email-ul utilizatorului
+      const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
       const newMeeting: ScheduledMeeting = {
         mentorEmail: selectedMentor.email,
         date: meetingData.date,
@@ -91,14 +89,13 @@ export default function MentorInteraction() {
       localStorage.setItem('scheduledMeetings', JSON.stringify(meetings));
 
       alert('Meeting scheduled successfully!');
-      setMeetingData({ date: '', time: '' }); // Resetează formularul
+      setMeetingData({ date: '', time: '' }); // reset formular
     } catch (error) {
       console.error('Error scheduling meeting:', error);
       alert('Failed to schedule meeting. Please try again.');
     }
   };
 
-  // Trimite o recenzie
   const submitReview = () => {
     if (!reviewData.rating || !reviewData.review) {
       alert('Please provide both a rating and a review.');
@@ -111,7 +108,7 @@ export default function MentorInteraction() {
     }
 
     try {
-      const userEmail = localStorage.getItem('userEmail') || 'user@example.com'; // Placeholder pentru email-ul utilizatorului
+      const userEmail = localStorage.getItem('userEmail') || 'user@example.com'; 
       const newReview: Review = {
         mentorEmail: selectedMentor.email,
         rating: parseInt(reviewData.rating.toString()),
@@ -125,20 +122,20 @@ export default function MentorInteraction() {
       localStorage.setItem('mentorReviews', JSON.stringify(reviews));
 
       alert('Review submitted successfully!');
-      setReviewData({ rating: 0, review: '' }); // Resetează formularul
+      setReviewData({ rating: 0, review: '' }); 
     } catch (error) {
       console.error('Error submitting review:', error);
       alert('Failed to submit review. Please try again.');
     }
   };
 
-  // Redirecționează înapoi la lista de mentori
+
   const goBack = () => {
     router.push('/mentors');
   };
 
   if (!selectedMentor) {
-    return null; // Așteaptă redirecționarea dacă mentorul nu este încărcat
+    return null; 
   }
 
   return (
@@ -151,7 +148,7 @@ export default function MentorInteraction() {
           Schedule a meeting or leave a review for your mentor.
         </p>
 
-        {/* Secțiunea pentru programare */}
+        {/* sectiune pt programare */}
         <Card className="shadow-lg mb-8">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-purple-700">Schedule a Meeting</CardTitle>
@@ -196,7 +193,7 @@ export default function MentorInteraction() {
           </CardContent>
         </Card>
 
-        {/* Secțiunea pentru recenzie */}
+        {/* sectiune pt  recenzie */}
         <Card className="shadow-lg mb-8">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-purple-700">Leave a Review</CardTitle>

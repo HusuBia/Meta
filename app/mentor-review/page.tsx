@@ -28,7 +28,7 @@ export default function MentorReviews() {
   const [mentor, setMentor] = useState<Mentor | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
 
-  // Încarcă mentorul și recenziile
+  // incarca mentorul + recenziile
   useEffect(() => {
     try {
       const savedMentor = localStorage.getItem('currentMentor');
@@ -39,7 +39,6 @@ export default function MentorReviews() {
         const savedReviews = localStorage.getItem('mentorReviews');
         if (savedReviews) {
           const allReviews = JSON.parse(savedReviews);
-          // Filtrează recenziile pentru mentorul curent
           const mentorReviews = allReviews.filter(
             (review: Review) => review.mentorEmail === parsedMentor.email
           );
@@ -55,13 +54,12 @@ export default function MentorReviews() {
     }
   }, [router]);
 
-  // Redirecționează înapoi la dashboard-ul mentorilor
   const goBack = () => {
     router.push('/dashboard/mentor');
   };
 
   if (!mentor) {
-    return null; // Așteaptă redirecționarea dacă mentorul nu este încărcat
+    return null; 
   }
 
   return (

@@ -31,37 +31,36 @@ export default function MentorProfile() {
     expertise: '',
   });
 
-  // Încarcă datele salvate din localStorage (dacă există)
+  // incarca date (baza de date ulterior)
   useEffect(() => {
     const savedMentors = localStorage.getItem('mentors');
     if (savedMentors) {
       const mentors = JSON.parse(savedMentors);
-      const currentMentor = mentors[mentors.length - 1]; // Presupunem ultimul mentor adăugat
+      const currentMentor = mentors[mentors.length - 1]; 
       if (currentMentor) {
         setFormData(currentMentor);
       }
     }
   }, []);
 
-  // Gestionarea schimbărilor în formular
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Salvează datele și redirecționează
+  // save data + redirectionare
   const saveProfile = () => {
     const updatedMentor = {
       ...formData,
-      name: `${formData.firstName} ${formData.lastName}`, // Combină firstName și lastName
-      expertise: formData.occupation, // Folosește occupation ca expertise
+      name: `${formData.firstName} ${formData.lastName}`, // Combina firstName și lastName
+      expertise: formData.occupation,
     };
 
     try {
       const savedMentors = localStorage.getItem('mentors');
       let mentors = savedMentors ? JSON.parse(savedMentors) : [];
-      mentors = [...mentors, updatedMentor]; // Adaugă noul mentor la listă
-      // Salvează mentorul curent (simulează autentificare)
+      mentors = [...mentors, updatedMentor]; // add noul mentor la lista
+      // save mentorul curent (simuleaza autentificare)
       localStorage.setItem('currentMentor', JSON.stringify(updatedMentor));
       alert('Profile saved successfully!');
       router.push('/dashboard/mentor');
@@ -71,7 +70,6 @@ export default function MentorProfile() {
     }
   };
 
-  // Redirecționează înapoi la dashboard-ul mentorilor
   const goBack = () => {
     router.push('/dashboard/mentor');
   };
