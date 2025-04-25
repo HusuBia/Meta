@@ -50,6 +50,7 @@ public class InterviewService {
         userMsg.setSession(session);
         messageRepo.save(userMsg);
 
+        // Prompt AI
         String prompt = String.format("""
         Simulează un interviu pentru jobul: %s.
         Candidatului i s-a pus o întrebare și a răspuns:
@@ -65,6 +66,7 @@ public class InterviewService {
         String gptReply = chatGPTService.getChatReponse(new PromptRequest(prompt));
 
         int score = extractScoreFromResponse(gptReply);
+        String feedback = extractFeedbackFromResponse(gptReply);
 
         InterviewMessage aiMsg = new InterviewMessage();
         aiMsg.setRole("AI");
@@ -75,8 +77,9 @@ public class InterviewService {
         session.setScore(score);
         sessionRepo.save(session);
 
-        return new InterviewResponse(gptReply, score, "Scor estimativ pe baza răspunsului tău.");
+        return new InterviewResponse(gptReply, score, feedback);
     }
+
     private int extractScoreFromResponse(String response) {
         var matcher = java.util.regex.Pattern.compile("(?i)scor\\D*(\\d{1,2})")
                 .matcher(response);
@@ -85,5 +88,18 @@ public class InterviewService {
         }
         return 0;
     }
+    private String extractFeedbackFromResponse(String response) {
+        String[] lines = response.split("\n");
+        for (String line : lines) {
+            if (line.toLowerCase().contains("părere") || line.toLowerCase().contains("feedback")) {
+                return line.trim();
+            }
+            if (line.trim().startsWith("1.")) {
+                return line.trim().substring(2).trim();
+            }
+        }
+        return "Feedback indisponibil momentan.";
+    }
+
 
 }

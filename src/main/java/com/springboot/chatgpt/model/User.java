@@ -1,6 +1,9 @@
 package com.springboot.chatgpt.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -12,7 +15,20 @@ public class User {
     private String fullName;
     private String email;
     private String password;
-    private String role;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<DailyTask> tasks;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<InterviewSession> interviewSessions;
+
+    public User() {}
 
     public Long getId() {
         return id;
@@ -46,11 +62,28 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<DailyTask> getTasks() {
+        return tasks;
+    }
+
+
+    public void setTasks(List<DailyTask> tasks) {
+        this.tasks = tasks;
+    }
+
+    public List<InterviewSession> getInterviewSessions() {
+        return interviewSessions;
+    }
+
+    public void setInterviewSessions(List<InterviewSession> interviewSessions) {
+        this.interviewSessions = interviewSessions;
     }
 }

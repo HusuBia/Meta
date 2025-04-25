@@ -3,52 +3,63 @@ package com.springboot.chatgpt.service;
 import com.springboot.chatgpt.dto.AuthRequest;
 import com.springboot.chatgpt.dto.RegisterRequest;
 import com.springboot.chatgpt.dto.UserProfileResponse;
+import com.springboot.chatgpt.model.Role;
 import com.springboot.chatgpt.model.User;
 import com.springboot.chatgpt.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.MessageDigest;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-
-    public void register(RegisterRequest request) {
+    public ResponseEntity<String> register(RegisterRequest request) {
         User user = new User();
         user.setFullName(request.fullName());
         user.setEmail(request.email());
-        user.setPassword(md5(request.password()));
-        user.setRole("USER");
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRole(Role.USER);
         userRepository.save(user);
+
+        return ResponseEntity.ok("User registered successfully!");
     }
 
-    public UserProfileResponse login(AuthRequest request) {
+    public ResponseEntity<UserProfileResponse> login(AuthRequest request) {
         User user = userRepository.findByEmail(request.email());
-        if (user == null || !user.getPassword().equals(md5(request.password()))) {
-            throw new RuntimeException("Invalid credentials");
+        if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new RuntimeException("Invalid user or password");
         }
-        return new UserProfileResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole());
+
+        UserProfileResponse response = new UserProfileResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return ResponseEntity.ok()
+                .header("Message", "Sucessfully logged in")
+                .body(response);
     }
+
 
     public UserProfileResponse getProfile(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserProfileResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole());
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Invalid data"));
+        return new UserProfileResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole().name());
     }
 
-    private String md5(String input) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] bytes = md.digest(input.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : bytes) sb.append(String.format("%02x", b));
-            return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Error hashing password");
+    public User findByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + email);
         }
+        return user;
     }
 }
