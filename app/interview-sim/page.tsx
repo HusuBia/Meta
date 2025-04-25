@@ -12,27 +12,38 @@ export default function InterviewSimulation() {
   const [userAnswer, setUserAnswer] = useState('');
   const [questionCount, setQuestionCount] = useState(1);
   const [totalQuestions] = useState(10);
-  const [timer, setTimer] = useState(60);
+  const [timer, setTimer] = useState(120);
   const [feedback, setFeedback] = useState('');
   const [jobTitle] = useState('Software Engineer');
+  const [interviewCompleted, setInterviewCompleted] = useState(false);
 
-  // Pornește interviul când se încarcă pagina
+  // pornire interviu la incarcarea paginii
   useEffect(() => {
     const startInterview = async () => {
-      const res = await fetch('http://localhost:8080/interview/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobTitle })
-      });
-      const data = await res.json();
-      setSessionId(data.id);
-      setCurrentQuestion(data.firstQuestion);
+      try {
+        const res = await fetch('http://localhost:8080/interview/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jobTitle })
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to start interview');
+        }
+
+        const data = await res.json();
+        console.log('Start Interview Response:', JSON.stringify(data, null, 2)); // log pt verificare raspuns
+        setSessionId(data.id);
+        setCurrentQuestion(data.firstQuestion);
+      } catch (error) {
+        console.error('Error starting interview:', error);
+      }
     };
 
     startInterview();
   }, [jobTitle]);
 
-  // Timer logic
+  // timer
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => {
@@ -42,33 +53,55 @@ export default function InterviewSimulation() {
     }
   }, [timer]);
 
-  // Trimitere răspuns
+  // trimitem raspuns
   const submitAnswer = async () => {
     if (!sessionId) return;
-    const res = await fetch('http://localhost:8080/interview/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId,
-        userMessage: userAnswer
-      })
-    });
-    const data = await res.json();
 
-    // Extrage următoarea întrebare și feedback
-    const feedbackText = data.feedback || 'No feedback available';
-    const nextQuestion = data.response?.split('2.')[1]?.split('3.')[0]?.trim() || 'Next question not found.';
+    try {
+      const res = await fetch('http://localhost:8080/interview/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          userMessage: userAnswer
+        })
+      });
 
-    setFeedback(feedbackText);
-    setCurrentQuestion(nextQuestion);
-    setUserAnswer('');
-    setQuestionCount((prev) => prev + 1);
-    setTimer(60);
+      if (!res.ok) {
+        throw new Error('Failed to get next question');
+      }
+
+      const data = await res.json();
+      console.log('Chat Response:', JSON.stringify(data, null, 2)); // log pt verificare raspuns de la chat
+
+      const feedbackText = data.feedback || 'No feedback available';
+      const nextQuestion = data.aiReply
+        ? data.aiReply.split('2.')[1]?.split('3.')[0]?.trim() || 'Next question not found.'
+        : 'Next question not found.';
+
+        //reset timer pt fiecare intrebare
+      setFeedback(feedbackText);
+      setCurrentQuestion(nextQuestion);
+      setUserAnswer('');
+      setQuestionCount((prev) => prev + 1);
+      setTimer(120);
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+    }
   };
+
+    // verificam daca s a atins limita de 10 intrebari
+    useEffect(() => {
+      if (questionCount > totalQuestions) {
+        setInterviewCompleted(true);
+        finishSimulation(); // terminam interviul dupa cele 10 intrebari
+      }
+    }, [questionCount]);
+  
 
   const finishSimulation = () => {
     alert('Interview simulation completed! Redirecting to dashboard...');
-    router.push('/dashboard');
+    router.push('/dashboard/user');
   };
 
   return (
