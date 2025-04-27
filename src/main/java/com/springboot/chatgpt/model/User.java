@@ -19,7 +19,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<DailyTask> tasks;
@@ -27,6 +26,9 @@ public class User {
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<InterviewSession> interviewSessions;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Admin admin;
 
     public User() {}
 
@@ -85,5 +87,13 @@ public class User {
 
     public void setInterviewSessions(List<InterviewSession> interviewSessions) {
         this.interviewSessions = interviewSessions;
+    }
+
+    public Admin getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(Admin admin) {
+        this.admin = admin;
     }
 }
