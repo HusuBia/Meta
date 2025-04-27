@@ -1,5 +1,5 @@
 version: '3.9'
-
+#mysql
 services:
   mysql:
     image: mysql:8.0
@@ -16,8 +16,7 @@ services:
       - career_db_data:/var/lib/mysql
       - ./career_db_dump.sql:/docker-entrypoint-initdb.d/career_db_dump.sql
 
-
-
+#spring
   springboot-app:
     image: eclipse-temurin:23-jdk
     container_name: spring-app
