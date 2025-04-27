@@ -1,7 +1,7 @@
 package com.springboot.chatgpt.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springboot.chatgpt.dto.CvData;
+import com.springboot.chatgpt.model.CvData;
 import com.springboot.chatgpt.service.CvPdfService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -25,6 +25,8 @@ public class CvController {
     public ResponseEntity<byte[]> generateCvWithImage(
             @RequestPart("cv") String cvJson,
             @RequestPart("image") MultipartFile imageFile) {
+        //System.out.println("Received file: " + imageFile.getOriginalFilename());
+
         try {
             CvData data = objectMapper.readValue(cvJson, CvData.class);
             byte[] pdf = cvPdfService.generatePdf(data, imageFile);

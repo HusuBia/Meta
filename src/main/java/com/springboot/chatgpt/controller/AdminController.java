@@ -30,7 +30,7 @@ public class AdminController {
     @DeleteMapping("/mentor/{id}")
     public ResponseEntity<String> deleteMentor(@PathVariable Long id) {
         adminService.removeMentor(id);
-        return ResponseEntity.ok("Mentor șters.");
+        return ResponseEntity.ok("Deleted mentor.");
     }
 
     @GetMapping("/reviews")
@@ -41,7 +41,7 @@ public class AdminController {
     @DeleteMapping("/review/{id}")
     public ResponseEntity<String> deleteReview(@PathVariable Long id) {
         adminService.deleteReview(id);
-        return ResponseEntity.ok("Review șters.");
+        return ResponseEntity.ok("Deleted review.");
     }
 
     @GetMapping("/export/users")

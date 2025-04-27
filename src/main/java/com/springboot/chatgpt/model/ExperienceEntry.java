@@ -1,26 +1,26 @@
-package com.springboot.chatgpt.dto;
+package com.springboot.chatgpt.model;
 
-public class EducationEntry {
-    private String institution;
-    private String degree;
+public class ExperienceEntry {
+    private String jobTitle;
+    private String employer;
     private String startDate;
     private String endDate;
     private String description;
 
-    public String getInstitution() {
-        return institution;
+    public String getJobTitle() {
+        return jobTitle;
     }
 
-    public void setInstitution(String institution) {
-        this.institution = institution;
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
     }
 
-    public String getDegree() {
-        return degree;
+    public String getEmployer() {
+        return employer;
     }
 
-    public void setDegree(String degree) {
-        this.degree = degree;
+    public void setEmployer(String employer) {
+        this.employer = employer;
     }
 
     public String getStartDate() {

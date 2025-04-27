@@ -1,4 +1,6 @@
-package com.springboot.chatgpt.dto;
+package com.springboot.chatgpt.model;
+
+import com.springboot.chatgpt.dto.ProjectsEntry;
 
 import java.util.List;
 import java.util.Map;
