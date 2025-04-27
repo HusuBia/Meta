@@ -9,7 +9,7 @@ public class InterviewMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String role; // "USER" sau "AI"
+    private String role;
     @Column(columnDefinition = "TEXT")
     private String content;
 
