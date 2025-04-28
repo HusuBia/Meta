@@ -5,46 +5,239 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
+// definire tipuri formData
+interface Education {
+  institution: string;
+  degree: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+interface Experience {
+  jobTitle: string;
+  employer: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+}
+
+interface Project {
+  projectTitle: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  technologies: string; 
+  link: string;
+}
+
+interface DigitalSkills {
+  Java: number;
+  SpringBoot: number;
+  SQL: number;
+  Git: number;
+  HTML: number;
+  CSS: number;
+}
+
+interface FormData {
+  fullName: string;
+  title: string;
+  email: string;
+  phone: string;
+  address: string;
+  dateOfBirth: string;
+  nationality: string;
+  aboutMe: string;
+  education: Education[];
+  experience: Experience[];
+  projects: Project[];
+  languages: string[];
+  digitalSkills: DigitalSkills;
+  softSkills: string[];
+}
+
 export default function CVTools() {
   const router = useRouter();
 
-  // pastrare val din formular
-  const [formData, setFormData] = useState({
+  // initializare formData
+  const [formData, setFormData] = useState<FormData>({
     fullName: '',
+    title: '',
     email: '',
     phone: '',
     address: '',
-    portfolio: '',
-    objective: '',
-    experience: '',
-    education: '',
-    skills: '',
-    languages: '',
-    certifications: '',
-    hobbies: '',
-    additionalInfo: '',
+    dateOfBirth: '',
+    nationality: '',
+    aboutMe: '',
+    education: [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
+    experience: [{ jobTitle: '', employer: '', startDate: '', endDate: '', description: '' }],
+    projects: [{ projectTitle: '', description: '', startDate: '', endDate: '', technologies: '', link: '' }],
+    languages: [''],
+    digitalSkills: { Java: 0, SpringBoot: 0, SQL: 0, Git: 0, HTML: 0, CSS: 0 },
+    softSkills: [''],
   });
 
-  // gestionare schimbari in formular
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // functie de generare cv
-  const generateCV = () => {
-    alert('CV generated! (Here we would generate a downloadable PDF or preview.)');
+  // incarcare foto
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setPhoto(e.target.files[0]);
+    }
   };
+
+  const handleArrayInputChange = (
+    index: number,
+    field: keyof Pick<FormData, 'education' | 'experience' | 'projects' | 'languages' | 'softSkills'>,
+    key: string,
+    value: string
+  ) => {
+    setFormData((prevData) => {
+      if (field === 'languages') {
+        const updatedArray = [...prevData.languages];
+        updatedArray[index] = value;
+        return { ...prevData, languages: updatedArray };
+      }
+      if (field === 'softSkills') {
+        const updatedArray = [...prevData.softSkills];
+        updatedArray[index] = value;
+        return { ...prevData, softSkills: updatedArray };
+      }
+      if (field === 'education') {
+        const updatedArray = [...prevData.education];
+        updatedArray[index] = { ...updatedArray[index], [key]: value };
+        return { ...prevData, education: updatedArray };
+      }
+      if (field === 'experience') {
+        const updatedArray = [...prevData.experience];
+        updatedArray[index] = { ...updatedArray[index], [key]: value };
+        return { ...prevData, experience: updatedArray };
+      }
+      if (field === 'projects') {
+        const updatedArray = [...prevData.projects];
+        updatedArray[index] = { ...updatedArray[index], [key]: value };
+        return { ...prevData, projects: updatedArray };
+      }
+      return prevData;
+    });
+  };
+
+  const handleDigitalSkillChange = (skill: keyof DigitalSkills, value: number) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      digitalSkills: { ...prevData.digitalSkills, [skill]: value },
+    }));
+  };
+
+  // adaugare intro nou
+  const addArrayEntry = (field: keyof Pick<FormData, 'education' | 'experience' | 'projects' | 'languages' | 'softSkills'>) => {
+    setFormData((prevData) => {
+      if (field === 'languages' || field === 'softSkills') {
+        return { ...prevData, [field]: [...prevData[field], ''] };
+      }
+      const newEntry =
+        field === 'education'
+          ? { institution: '', degree: '', startDate: '', endDate: '', description: '' }
+          : field === 'experience'
+          ? { jobTitle: '', employer: '', startDate: '', endDate: '', description: '' }
+          : { projectTitle: '', description: '', startDate: '', endDate: '', technologies: '', link: '' };
+      return { ...prevData, [field]: [...prevData[field], newEntry] };
+    });
+  };
+
+  // generare cv + trimitere spre backend
+  const generateCV = async () => {
+    try {
+      // creare formData
+      const formDataToSend = new FormData();
+  
+      // adaugare date cv in format JSON in form data
+      const cvData = {
+        fullName: formData.fullName || '',
+        title: formData.title || '',
+        email: formData.email || '',
+        phone: formData.phone || '',
+        address: formData.address || '',
+        dateOfBirth: formData.dateOfBirth || '',
+        nationality: formData.nationality || '',
+        aboutMe: formData.aboutMe || '',
+        education: formData.education.length > 0 ? formData.education : [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
+        experience: formData.experience.length > 0 ? formData.experience.map((exp) => ({
+          position: exp.jobTitle || '',    
+          company: exp.employer || '',     
+          startDate: exp.startDate || '',
+          endDate: exp.endDate || '',
+          description: exp.description || ''
+        })) : [{ position: '', company: '', startDate: '', endDate: '', description: '' }],
+        projects: formData.projects.length > 0 ? formData.projects.map((project) => ({
+          name: project.projectTitle || '',   
+          description: project.description || ''
+        })) : [{ name: '', description: '' }],
+        languages: formData.languages.filter((lang) => lang.trim() !== '') || [''],
+        digitalSkills: formData.digitalSkills || { Java: 0, SpringBoot: 0, SQL: 0, Git: 0, HTML: 0, CSS: 0 },
+        softSkills: formData.softSkills.filter((skill) => skill.trim() !== '') || ['']
+      };
+      
+  
+      // adaugare cv in form data
+      formDataToSend.append('cv', JSON.stringify(cvData));
+  
+      // adaugare imagine fisier formData 
+      if (photo) {
+        formDataToSend.append('image', photo);
+      } else {
+        throw new Error('Imaginea este obligatorie. Te rugăm să încarci o imagine.');
+      }
+  
+      // trimit cerere POST la backend
+      const response = await fetch('http://localhost:8080/api/cv/upload', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Detalii eroare:", errorText); 
+        throw new Error(`Eroare la generarea CV-ului: ${errorText}`);
+      }
+  
+      // obtin fisierul generat daca a mers cererea
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      setPdfUrl(url); 
+      setError(null);   
+    } catch (err: unknown) { 
+      if (err instanceof Error) {
+        setError(err.message || 'Eroare la generarea CV-ului. Te rugăm să încerci din nou.');
+        console.error('Eroare detaliată:', err);
+      } else {
+        setError('Eroare necunoscută');
+        console.error('Eroare necunoscută:', err);
+      }
+    }
+  };
+  
+  
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl font-extrabold text-center text-purple-800 mb-10">Create Your Professional CV</h1>
 
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Formular CV */}
+          {/* CV Form */}
           <div className="lg:col-span-2 space-y-6">
-            {/* info personale */}
+            {/* Personal Information */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Personal Information</CardTitle>
@@ -62,6 +255,19 @@ export default function CVTools() {
                     onChange={handleInputChange}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                    Professional Title
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
                 <div>
@@ -106,178 +312,312 @@ export default function CVTools() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="portfolio" className="block text-sm font-medium text-gray-700 mb-1">
-                    Portfolio/LinkedIn/GitHub
+                  <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth
                   </label>
                   <input
-                    type="url"
-                    name="portfolio"
-                    id="portfolio"
-                    value={formData.portfolio}
+                    type="date"
+                    name="dateOfBirth"
+                    id="dateOfBirth"
+                    value={formData.dateOfBirth}
                     onChange={handleInputChange}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                    placeholder="https://linkedin.com/in/your-profile"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nationality
+                  </label>
+                  <input
+                    type="text"
+                    name="nationality"
+                    id="nationality"
+                    value={formData.nationality}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="photo" className="block text-sm font-medium text-gray-700 mb-1">
+                    Profile Photo
+                  </label>
+                  <input
+                    type="file"
+                    name="photo"
+                    id="photo"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            {/* obiectiv profesional */}
+            {/* About Me */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Professional Objective</CardTitle>
+                <CardTitle className="text-xl font-semibold text-purple-700">About Me</CardTitle>
               </CardHeader>
               <CardContent>
                 <textarea
-                  name="objective"
-                  id="objective"
-                  value={formData.objective}
+                  name="aboutMe"
+                  id="aboutMe"
+                  value={formData.aboutMe}
                   onChange={handleInputChange}
                   rows={4}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="Describe your career goals and aspirations..."
+                  placeholder="Describe yourself and your aspirations..."
                 />
               </CardContent>
             </Card>
 
-            {/* experienta profesionala */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Professional Experience</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <textarea
-                  name="experience"
-                  id="experience"
-                  value={formData.experience}
-                  onChange={handleInputChange}
-                  rows={6}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List your work experience (e.g., Job Title, Company, Dates, Responsibilities)..."
-                />
-              </CardContent>
-            </Card>
-
-            {/* educatie */}
+            {/* Education */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Education</CardTitle>
               </CardHeader>
-              <CardContent>
-                <textarea
-                  name="education"
-                  id="education"
-                  value={formData.education}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List your education (e.g., Degree, Institution, Dates)..."
-                />
+              <CardContent className="space-y-4">
+                {formData.education.map((edu, index) => (
+                  <div key={index} className="space-y-2 border-b pb-4">
+                    <input
+                      type="text"
+                      placeholder="Institution"
+                      value={edu.institution}
+                      onChange={(e) => handleArrayInputChange(index, 'education', 'institution', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Degree"
+                      value={edu.degree}
+                      onChange={(e) => handleArrayInputChange(index, 'education', 'degree', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Start Date (YYYY)"
+                      value={edu.startDate}
+                      onChange={(e) => handleArrayInputChange(index, 'education', 'startDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="End Date (YYYY)"
+                      value={edu.endDate}
+                      onChange={(e) => handleArrayInputChange(index, 'education', 'endDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={edu.description}
+                      onChange={(e) => handleArrayInputChange(index, 'education', 'description', e.target.value)}
+                      rows={3}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                ))}
+                <Button onClick={() => addArrayEntry('education')} className="bg-purple-600 text-white">
+                  Add Education
+                </Button>
               </CardContent>
             </Card>
 
-            {/* abilitati */}
+            {/* Professional Experience */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Skills</CardTitle>
+                <CardTitle className="text-xl font-semibold text-purple-700">Professional Experience</CardTitle>
               </CardHeader>
-              <CardContent>
-                <textarea
-                  name="skills"
-                  id="skills"
-                  value={formData.skills}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List your skills (e.g., Programming, Communication, Leadership)..."
-                />
+              <CardContent className="space-y-4">
+                {formData.experience.map((exp, index) => (
+                  <div key={index} className="space-y-2 border-b pb-4">
+                    <input
+                      type="text"
+                      placeholder="Job Title"
+                      value={exp.jobTitle}
+                      onChange={(e) => handleArrayInputChange(index, 'experience', 'jobTitle', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Employer"
+                      value={exp.employer}
+                      onChange={(e) => handleArrayInputChange(index, 'experience', 'employer', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Start Date (YYYY-MM)"
+                      value={exp.startDate}
+                      onChange={(e) => handleArrayInputChange(index, 'experience', 'startDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="End Date (YYYY-MM)"
+                      value={exp.endDate}
+                      onChange={(e) => handleArrayInputChange(index, 'experience', 'endDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={exp.description}
+                      onChange={(e) => handleArrayInputChange(index, 'experience', 'description', e.target.value)}
+                      rows={3}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                ))}
+                <Button onClick={() => addArrayEntry('experience')} className="bg-purple-600 text-white">
+                  Add Experience
+                </Button>
               </CardContent>
             </Card>
 
-            {/* limbi */}
+            {/* Projects */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold text-purple-700">Projects</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.projects.map((proj, index) => (
+                  <div key={index} className="space-y-2 border-b pb-4">
+                    <input
+                      type="text"
+                      placeholder="Project Title"
+                      value={proj.projectTitle}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'projectTitle', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <textarea
+                      placeholder="Description"
+                      value={proj.description}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'description', e.target.value)}
+                      rows={3}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Technologies (comma-separated)"
+                      value={proj.technologies}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'technologies', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Start Date (YYYY-MM)"
+                      value={proj.startDate}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'startDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="text"
+                      placeholder="End Date (YYYY-MM)"
+                      value={proj.endDate}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'endDate', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                    <input
+                      type="url"
+                      placeholder="Project Link"
+                      value={proj.link}
+                      onChange={(e) => handleArrayInputChange(index, 'projects', 'link', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                ))}
+                <Button onClick={() => addArrayEntry('projects')} className="bg-purple-600 text-white">
+                  Add Project
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Languages */}
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Languages</CardTitle>
               </CardHeader>
-              <CardContent>
-                <textarea
-                  name="languages"
-                  id="languages"
-                  value={formData.languages}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List languages and proficiency (e.g., English - Fluent, Spanish - Intermediate)..."
-                />
+              <CardContent className="space-y-4">
+                {formData.languages.map((lang, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    placeholder="Language (e.g., English - Fluent)"
+                    value={lang}
+                    onChange={(e) => handleArrayInputChange(index, 'languages', '', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                ))}
+                <Button onClick={() => addArrayEntry('languages')} className="bg-purple-600 text-white">
+                  Add Language
+                </Button>
               </CardContent>
             </Card>
 
-            {/* certificari */}
+            {/* Digital Skills */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Certifications</CardTitle>
+                <CardTitle className="text-xl font-semibold text-purple-700">Digital Skills (1-5)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <textarea
-                  name="certifications"
-                  id="certifications"
-                  value={formData.certifications}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List certifications (e.g., AWS Certified Developer, PMP, etc.)..."
-                />
+              <CardContent className="space-y-4">
+                {Object.keys(formData.digitalSkills).map((skill) => (
+                  <div key={skill} className="flex items-center space-x-2">
+                    <label className="w-24 text-sm font-medium text-gray-700">{skill}</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="5"
+                      value={formData.digitalSkills[skill as keyof DigitalSkills]}
+                      onChange={(e) => handleDigitalSkillChange(skill as keyof DigitalSkills, parseInt(e.target.value))}
+                      className="w-16 p-3 border border-gray-300 rounded-lg"
+                    />
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
-            {/* pasiuni */}
+            {/* Soft Skills */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Hobbies</CardTitle>
+                <CardTitle className="text-xl font-semibold text-purple-700">Soft Skills</CardTitle>
               </CardHeader>
-              <CardContent>
-                <textarea
-                  name="hobbies"
-                  id="hobbies"
-                  value={formData.hobbies}
-                  onChange={handleInputChange}
-                  rows={3}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="List your hobbies (e.g., Photography, Hiking, Chess)..."
-                />
+              <CardContent className="space-y-4">
+                {formData.softSkills.map((skill, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    placeholder="Soft Skill"
+                    value={skill}
+                    onChange={(e) => handleArrayInputChange(index, 'softSkills', '', e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg"
+                  />
+                ))}
+                <Button onClick={() => addArrayEntry('softSkills')} className="bg-purple-600 text-white">
+                  Add Soft Skill
+                </Button>
               </CardContent>
             </Card>
 
-            {/* info suplimentare */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-purple-700">Additional Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <textarea
-                  name="additionalInfo"
-                  id="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-                  placeholder="Any additional information relevant to your CV..."
-                />
-              </CardContent>
-            </Card>
-
-            {/* generare cv */}
-            <div className="flex justify-end">
+            {/* Generate CV Button and Download Link */}
+            <div className="flex justify-end space-x-4">
               <Button
                 onClick={generateCV}
                 className="bg-purple-600 text-white px-8 py-3 rounded-xl hover:bg-purple-700 transition-all duration-300 shadow-md"
               >
                 Generate CV
               </Button>
+              {pdfUrl && (
+                <a
+                  href={pdfUrl}
+                  download="cv.pdf"
+                  className="bg-green-600 text-white px-8 py-3 rounded-xl hover:bg-green-700 transition-all duration-300 shadow-md"
+                >
+                  Download CV
+                </a>
+              )}
             </div>
           </div>
 
-          {/* preview cv */}
+          {/* CV Preview */}
           <div className="lg:col-span-1">
             <Card className="shadow-lg sticky top-8">
               <CardHeader>
@@ -286,13 +626,11 @@ export default function CVTools() {
               <CardContent>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <h2 className="text-lg font-bold">{formData.fullName || 'Your Name'}</h2>
+                  <p className="text-sm text-gray-600">{formData.title || 'Your Title'}</p>
                   <p className="text-sm text-gray-600">{formData.email || 'Your Email'}</p>
                   <p className="text-sm text-gray-600">{formData.phone || 'Your Phone'}</p>
-                  <p className="text-sm text-gray-600 mt-2">{formData.objective || 'Your professional objective...'}</p>
-                  <p className="text-sm text-gray-600 mt-2">
-                    <strong>Experience:</strong> {formData.experience || 'Your experience...'}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-4 italic">This is a placeholder preview. Generate CV to see the full version.</p>
+                  <p className="text-sm text-gray-600 mt-2">{formData.aboutMe || 'About you...'}</p>
+                  <p className="text-sm text-gray-500 mt-4 italic">Generate CV to download the full version.</p>
                 </div>
               </CardContent>
             </Card>

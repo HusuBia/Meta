@@ -60,7 +60,10 @@ export default function UserDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: question }),
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: question }],
+        })
       });
 
       if (response.ok) {
