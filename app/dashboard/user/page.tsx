@@ -55,33 +55,34 @@ export default function UserDashboard() {
     setLoading(true);
     setAnswer('');
     try {
-        console.log('Sending question:', question);
-        const response = await fetch('http://localhost:8080/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                model: "gpt-3.5-turbo",
-                messages: [{ role: "user", content: question }]
-            })
-        });
-
-        const responseText = await response.text();
-
-        if (response.ok) {
-            setAnswer(responseText);
-        } else {
-            console.error('Server error:', response.status, responseText);
-            setAnswer(`Error ${response.status}: ${responseText}`);
-        }
+      console.log('Sending question:', question);
+      const response = await fetch('http://localhost:8080/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: question }), // promtRequest
+      });
+  
+      const responseText = await response.text();
+      console.log('Response Status:', response.status);
+      console.log('Response Text:', responseText);
+  
+      if (response.ok) {
+        setAnswer(responseText);
+      } else {
+        console.error('Server error:', response.status, responseText);
+        setAnswer(`Error ${response.status}: ${responseText}`);
+      }
     } catch (error) {
-        console.error('Connection error:', error);
-        setAnswer('Error: Failed to connect to the server.');
+      console.error('Connection error:', error);
+      setAnswer('Error: Failed to connect to the server.');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+
+  
 
   
 
