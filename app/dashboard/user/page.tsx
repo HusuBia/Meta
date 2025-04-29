@@ -55,30 +55,35 @@ export default function UserDashboard() {
     setLoading(true);
     setAnswer('');
     try {
-      const response = await fetch('http://localhost:8080/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: question }],
-        })
-      });
+        console.log('Sending question:', question);
+        const response = await fetch('http://localhost:8080/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: question }]
+            })
+        });
 
-      if (response.ok) {
-        const data = await response.text(); // pentru string simplu
-        setAnswer(data);
-      } else {
-        setAnswer('Error: Unable to get a response from the server.');
-      }
+        const responseText = await response.text();
+
+        if (response.ok) {
+            setAnswer(responseText);
+        } else {
+            console.error('Server error:', response.status, responseText);
+            setAnswer(`Error ${response.status}: ${responseText}`);
+        }
     } catch (error) {
-      console.error('Error:', error);
-      setAnswer('Error: Failed to connect to the server.');
+        console.error('Connection error:', error);
+        setAnswer('Error: Failed to connect to the server.');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+  
 
   return (
     <div className="flex min-h-screen bg-gray-50">
