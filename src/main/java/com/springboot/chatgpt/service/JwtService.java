@@ -18,7 +18,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    private final long expiration = 1000 * 60 * 60; // 1h
+    private final long expiration = 1000 * 60 * 60;
 
     public String generateToken(String email, String role) {
         return Jwts.builder()

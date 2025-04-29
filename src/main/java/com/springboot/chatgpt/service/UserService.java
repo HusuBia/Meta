@@ -46,8 +46,8 @@ public class UserService {
         if (user.getRole() == Role.ADMIN) {
             Admin admin = new Admin();
             admin.setUser(user);
-            admin.setDepartment("Default Department"); // sau preia din request dacă ai
-            admin.setContactInfo("default@example.com"); // idem
+            admin.setDepartment("Default Department");
+            admin.setContactInfo("default@example.com");
             adminRepository.save(admin);
         }
 

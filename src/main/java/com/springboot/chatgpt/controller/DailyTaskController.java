@@ -6,6 +6,8 @@ import com.springboot.chatgpt.model.User;
 import com.springboot.chatgpt.service.DailyTaskService;
 import com.springboot.chatgpt.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -31,15 +33,19 @@ public class DailyTaskController {
     }
 
     @PostMapping
-    public DailyTask createTask(@RequestBody Map<String, String> payload, HttpServletRequest request) {
-        String email = (String) request.getSession().getAttribute("userEmail");
-        if (email == null) throw new RuntimeException("User not authenticated");
+    public DailyTask createTask(@RequestBody Map<String, String> payload, Principal principal) {
+        if (principal == null) throw new RuntimeException("User not authenticated");
 
+        String email = principal.getName();
         User user = userService.findByEmail(email);
+
         String title = payload.get("title");
         String description = payload.getOrDefault("description", "");
+
         return dailyTaskService.addTask(user, title, description);
     }
+
+
 
     @PatchMapping("/{id}/complete")
     public DailyTask completeTask(@PathVariable Long id) {

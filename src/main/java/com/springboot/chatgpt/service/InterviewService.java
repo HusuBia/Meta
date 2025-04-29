@@ -50,17 +50,16 @@ public class InterviewService {
         userMsg.setSession(session);
         messageRepo.save(userMsg);
 
-        // Prompt AI
         String prompt = String.format("""
-        Simulează un interviu pentru jobul: %s.
-        Candidatului i s-a pus o întrebare și a răspuns:
+        Simuleaza un interviu pentru jobul: %s.
+        Candidatului i s-a pus o intrebare și a raspuns:
         
         "%s"
         
-        Vreau să îmi spui:
-        1. Ce părere ai despre răspuns (scurt feedback)
-        2. Ce întrebare de interviu ai pune în continuare
-        3. Un scor de la 1 la 10 pentru răspunsul de mai sus.
+        Vreau să imi spui:
+        1. Ce parere ai despre raspuns (scurt feedback)
+        2. Ce intrebare de interviu ai pune în continuare
+        3. Un scor de la 1 la 10 pentru raspunsul de mai sus.
         """, session.getJobTitle(), request.userMessage());
 
         String gptReply = chatGPTService.getChatReponse(new PromptRequest(prompt));
@@ -91,14 +90,14 @@ public class InterviewService {
     private String extractFeedbackFromResponse(String response) {
         String[] lines = response.split("\n");
         for (String line : lines) {
-            if (line.toLowerCase().contains("părere") || line.toLowerCase().contains("feedback")) {
+            if (line.toLowerCase().contains("parere") || line.toLowerCase().contains("feedback")) {
                 return line.trim();
             }
             if (line.trim().startsWith("1.")) {
                 return line.trim().substring(2).trim();
             }
         }
-        return "Feedback indisponibil momentan.";
+        return "Indisponible feedback.";
     }
 
 
