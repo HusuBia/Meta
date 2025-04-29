@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 // definire tipuri formData
 interface Education {
@@ -154,76 +155,102 @@ export default function CVTools() {
   };
 
   // generare cv + trimitere spre backend
-  const generateCV = async () => {
-    try {
       // creare formData
       const formDataToSend = new FormData();
-  
-      // adaugare date cv in format JSON in form data
-      const cvData = {
-        fullName: formData.fullName || '',
-        title: formData.title || '',
-        email: formData.email || '',
-        phone: formData.phone || '',
-        address: formData.address || '',
-        dateOfBirth: formData.dateOfBirth || '',
-        nationality: formData.nationality || '',
-        aboutMe: formData.aboutMe || '',
-        education: formData.education.length > 0 ? formData.education : [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
-        experience: formData.experience.length > 0 ? formData.experience.map((exp) => ({
-          position: exp.jobTitle || '',    
-          company: exp.employer || '',     
-          startDate: exp.startDate || '',
-          endDate: exp.endDate || '',
-          description: exp.description || ''
-        })) : [{ position: '', company: '', startDate: '', endDate: '', description: '' }],
-        projects: formData.projects.length > 0 ? formData.projects.map((project) => ({
-          name: project.projectTitle || '',   
-          description: project.description || ''
-        })) : [{ name: '', description: '' }],
-        languages: formData.languages.filter((lang) => lang.trim() !== '') || [''],
-        digitalSkills: formData.digitalSkills || { Java: 0, SpringBoot: 0, SQL: 0, Git: 0, HTML: 0, CSS: 0 },
-        softSkills: formData.softSkills.filter((skill) => skill.trim() !== '') || ['']
+      const generateCV = async () => {
+        try {
+          const formDataToSend = new FormData();
+      
+          const cvData = {
+            fullName: formData.fullName || '',
+            title: formData.title || '',
+            email: formData.email || '',
+            phone: formData.phone || '',
+            address: formData.address || '',
+            dateOfBirth: formData.dateOfBirth || '',
+            nationality: formData.nationality || '',
+            aboutMe: formData.aboutMe || '',
+            education: formData.education.length > 0
+              ? formData.education
+              : [{ institution: '', degree: '', startDate: '', endDate: '', description: '' }],
+            experience: formData.experience.length > 0
+              ? formData.experience.map((exp) => ({
+                  jobTitle: exp.jobTitle || '',
+                  employer: exp.employer || '',
+                  startDate: exp.startDate || '',
+                  endDate: exp.endDate || '',
+                  description: exp.description || '',
+                }))
+              : [{ jobTitle: '', employer: '', startDate: '', endDate: '', description: '' }],
+            projects: formData.projects.length > 0
+              ? formData.projects.map((project) => ({
+                  projectTitle: project.projectTitle || '',
+                  description: project.description || '',
+                  startDate: project.startDate || '',
+                  endDate: project.endDate || '',
+                  technologies: project.technologies.split(',').map(t => t.trim()), // Trim și split
+                }))
+              : [{ projectTitle: '', description: '', startDate: '', endDate: '', technologies: [] }],
+            languages: formData.languages.filter((lang) => lang.trim() !== '') || [''],
+            digitalSkills:
+              formData.digitalSkills || { Java: 0, SpringBoot: 0, SQL: 0, Git: 0, HTML: 0, CSS: 0 },
+            softSkills: formData.softSkills.filter((skill) => skill.trim() !== '') || [''],
+          };
+      
+          formDataToSend.append('cv', JSON.stringify(cvData));
+      
+          if (photo) {
+            formDataToSend.append('image', photo);
+          } else {
+            throw new Error('Imaginea este obligatorie. Te rugăm să încarci o imagine.');
+          }
+      
+          const response = await axios.post('http://localhost:8080/api/cv/upload', formDataToSend, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            responseType: 'arraybuffer',
+          });
+      
+          // verificare rasouns corect
+          console.log('Răspuns complet:', response);
+      
+          const blob = new Blob([response.data], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setError(null);
+      
+          // declanseaza descarcarea automata
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'CV.pdf');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      
+          console.log('PDF generat și descărcat. Dimensiune:', response.data.byteLength);
+        } catch (err: unknown) {
+          if (axios.isAxiosError(err)) {
+            // verific daca este vreun raspuns din partea serverului
+            if (err.response) {
+              console.error('Status HTTP:', err.response.status); 
+              console.error('Mesaj de eroare de la server:', err.response.data);  // Detalii de la server
+              setError(`Eroare la server: ${err.response.status} - ${err.response.data}`);
+            } else {
+              console.error('Eroare necunoscută la cererea Axios:', err.message);
+              setError('Eroare necunoscută la cererea Axios');
+            }
+          } else if (err instanceof Error) {
+            setError(err.message || 'Eroare la generarea CV-ului. Te rugăm să încerci din nou.');
+            console.error('Eroare detaliată:', err);
+          } else {
+            setError('Eroare necunoscută');
+            console.error('Eroare necunoscută:', err);
+          }
+        }
       };
       
-  
-      // adaugare cv in form data
-      formDataToSend.append('cv', JSON.stringify(cvData));
-  
-      // adaugare imagine fisier formData 
-      if (photo) {
-        formDataToSend.append('image', photo);
-      } else {
-        throw new Error('Imaginea este obligatorie. Te rugăm să încarci o imagine.');
-      }
-  
-      // trimit cerere POST la backend
-      const response = await fetch('http://localhost:8080/api/cv/upload', {
-        method: 'POST',
-        body: formDataToSend,
-      });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Detalii eroare:", errorText); 
-        throw new Error(`Eroare la generarea CV-ului: ${errorText}`);
-      }
-  
-      // obtin fisierul generat daca a mers cererea
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      setPdfUrl(url); 
-      setError(null);   
-    } catch (err: unknown) { 
-      if (err instanceof Error) {
-        setError(err.message || 'Eroare la generarea CV-ului. Te rugăm să încerci din nou.');
-        console.error('Eroare detaliată:', err);
-      } else {
-        setError('Eroare necunoscută');
-        console.error('Eroare necunoscută:', err);
-      }
-    }
-  };
+      
   
   
 
@@ -554,7 +581,7 @@ export default function CVTools() {
             </Card>
 
             {/* Digital Skills */}
-            <Card className="shadow-lg">
+           <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-purple-700">Digital Skills (1-5)</CardTitle>
               </CardHeader>
