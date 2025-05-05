@@ -1,6 +1,0 @@
-[submodule "backend/Meta"]
-	path = backend/Meta
-	url = https://github.com/HusuBia/backend-repo.git
-[submodule "frontend/Meta"]
-	path = frontend/Meta
-	url = https://github.com/HusuBia/frontend-repo.git
