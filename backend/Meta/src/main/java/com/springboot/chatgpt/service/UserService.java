@@ -8,7 +8,6 @@ import com.springboot.chatgpt.model.Role;
 import com.springboot.chatgpt.model.User;
 import com.springboot.chatgpt.repository.AdminRepository;
 import com.springboot.chatgpt.repository.UserRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +26,11 @@ public class UserService {
         this.adminRepository = adminRepository;
     }
 
+    public UserProfileResponse register(RegisterRequest request) {
+        if (userRepository.findByEmail(request.email()) != null) {
+            throw new IllegalArgumentException("Email already in use");
+        }
 
-    public ResponseEntity<String> register(RegisterRequest request) {
         User user = new User();
         user.setFullName(request.fullName());
         user.setEmail(request.email());
@@ -37,69 +39,54 @@ public class UserService {
         try {
             user.setRole(Role.valueOf(request.role().toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid role");
+            throw new IllegalArgumentException("Invalid role: " + request.role());
         }
 
         userRepository.save(user);
 
-
-        if (user.getRole() == Role.ADMIN) {
-            Admin admin = new Admin();
-            admin.setUser(user);
-            admin.setDepartment("Default Department");
-            admin.setContactInfo("default@example.com");
-            adminRepository.save(admin);
-        }
-
-        return ResponseEntity.ok("User registered successfully!");
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        return new UserProfileResponse(
+                user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), token
+        );
     }
 
-
-    public ResponseEntity<UserProfileResponse> login(AuthRequest request) {
+    public UserProfileResponse login(AuthRequest request) {
         User user = userRepository.findByEmail(request.email());
         if (user == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Invalid user or password");
+            throw new IllegalArgumentException("Invalid email or password");
         }
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
-        UserProfileResponse response = new UserProfileResponse(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole().name(),
-                token
+        return new UserProfileResponse(
+                user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), token
         );
-
-        return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + token)
-                .body(response);
     }
 
     public UserProfileResponse getProfile(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Invalid data"));
-        return new UserProfileResponse(user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), null);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + id));
+
+        return new UserProfileResponse(
+                user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), null
+        );
+    }
+
+    public UserProfileResponse getProfileByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new IllegalArgumentException("User not found with email: " + email);
+        }
+
+        return new UserProfileResponse(
+                user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), null
+        );
     }
 
     public User findByEmail(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new RuntimeException("User not found with email: " + email);
+            throw new IllegalArgumentException("User not found with email: " + email);
         }
         return user;
     }
-    public UserProfileResponse getProfileByEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-
-        return new UserProfileResponse(
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getRole().name(),
-                null
-        );
-    }
-
 }

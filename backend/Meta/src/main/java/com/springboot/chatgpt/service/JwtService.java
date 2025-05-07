@@ -21,6 +21,7 @@ public class JwtService {
     private final long expiration = 1000 * 60 * 60;
 
     public String generateToken(String email, String role) {
+        System.out.println("JWT Secret: " + jwtSecret);
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
