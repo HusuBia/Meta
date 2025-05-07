@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuthToken } from '@/hooks/useAuthToken';
 import { SetStateAction, useEffect, useState } from 'react';
 import { FaClipboardList, FaCalendarAlt, FaEnvelope, FaComments, FaSearch, FaUserFriends } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
@@ -13,6 +14,7 @@ const messages = [
 ];
 
 export default function UserDashboard() {
+  const token = useAuthToken();
   const [quote, setQuote] = useState('');
   const [profileData, setProfileData] = useState({
     fullName: '',

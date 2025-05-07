@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuthToken } from '@/hooks/useAuthToken';
+import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, User } from 'lucide-react';
@@ -78,6 +80,7 @@ const feedbackList = [
 ];
 
 export default function Page() {
+  const token = useAuthToken();
   return (
     <main className="min-h-screen p-6 bg-gray-100">
       <h1 className="text-3xl font-bold text-purple-700 mb-6">User Feedback</h1>

@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault()
 
     try {
-      const response = await fetch('http://localhost:8080/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,20 +26,33 @@ export default function LoginPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        setErrorMessage(errorData.message || 'Login failed')
+        const errorText = await response.text();
+        let errorMessage;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || 'Login failed';
+        } catch {
+          errorMessage = errorText || 'Login failed';
+        }
+        setErrorMessage(errorMessage);
       } else {
-        const token = response.headers.get('Authorization')?.replace('Bearer ', '')
-        const userData = await response.json()
-
-        if (token) {
-          localStorage.setItem('token', token)
-          localStorage.setItem('user', JSON.stringify(userData))
+        const json = await response.json();
+        const token = response.headers.get('Authorization')?.replace('Bearer ', '') || json.token;
+        let userData = {};
+        try {
+          userData = await response.json();
+        } catch (err) {
+          console.warn('No JSON in success response');
         }
 
-        console.log('Login successful')
-        router.push('/dashboard') // schimbă cu ruta ta reală
+        if (token) {
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(userData));
+        }
+
+        router.push('/dashboard/user');
       }
+
     } catch (error) {
       setErrorMessage('Something went wrong')
       console.error('Error during login:', error)
