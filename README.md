@@ -6,11 +6,11 @@ Next Step is a modern web application that helps users discover their career pat
 
 ## Technologies Used
 
-![Next.js](https://img.shields.io/badge/Next.js-3ABBAC?style=flat-square)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=flat-square)
-![OpenAI GPT-4](https://img.shields.io/badge/OpenAI-GPT--4-FFB000?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-E2E8F0?style=flat-square&logo=next.js&logoColor=000000)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-0EA5E9?style=flat-square&logo=tailwindcss&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=flat-square&logo=mysql&logoColor=white)
+![OpenAI GPT-4](https://img.shields.io/badge/OpenAI-GPT--4-A6E3B0?style=flat-square&logo=openai&logoColor=black)
 
 ---
 
