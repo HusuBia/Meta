@@ -119,9 +119,9 @@ next-step/
 
 ## Roadmap
 
-* [ ] User dashboard with activity insights
+* [x] User dashboard with activity insights
 * [ ] Real-time job alert engine
-* [ ] Exportable PDF resumes
+* [x] Exportable PDF resumes
 * [ ] Persistent AI chat history
 * [ ] Job board API integrations (LinkedIn, BestJobs, etc.)
 
