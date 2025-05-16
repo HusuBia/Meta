@@ -6,7 +6,7 @@ Next Step is a modern web application that helps users discover their career pat
 
 ## Technologies Used
 
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square)
+![Next.js](https://img.shields.io/badge/Next.js-3ABBAC?style=flat-square)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=flat-square)
