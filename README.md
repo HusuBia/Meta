@@ -137,6 +137,3 @@ We welcome contributions from the community. Please fork the repository, create 
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
----
-
-Let me know if you’d like a version tailored for deployment (e.g. Docker setup, environment variable templates) or documentation for specific modules (AI, Auth, etc.).
