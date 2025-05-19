@@ -10,6 +10,7 @@ Next Step is a modern web application that helps users discover their career pat
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-0EA5E9?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-005C84?style=flat-square&logo=mysql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Podman--Compose-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![OpenAI GPT-4](https://img.shields.io/badge/OpenAI-GPT--4-32a852?style=flat-square&logo=openai&logoColor=black)
 
 ---
@@ -38,6 +39,8 @@ Next Step is a modern web application that helps users discover their career pat
 ---
 
 ## Local Setup
+
+### Option A: Manual Setup
 
 ### 1. Clone the Repository
 
@@ -78,6 +81,15 @@ spring.datasource.url=jdbc:mysql://localhost:3306/next_step_db
 spring.datasource.username=your_user
 spring.datasource.password=your_password
 ```
+---
+
+### Option B: Start with Docker (Podman)
+
+You can also launch the entire stack using `podman-compose`:
+
+1. Make sure you have `podman` and `podman-compose` installed.
+
+2. Run the docker `start.bat` script
 
 ---
 
@@ -104,15 +116,22 @@ The platform uses OpenAI’s GPT-4 API for:
 
 ```
 next-step/
+├── backend/                 # Spring Boot backend application
+│   ├── controller/          # REST API controllers
+│   ├── service/             # Business logic services
+│   ├── model/               # Data models and DTOs
+│   └── ...                  # Other backend components
 │
-├── frontend/             # Next.js + Tailwind application
-│   ├── pages/            # Page routes
-│   └── components/       # UI components
+├── frontend/                # Next.js frontend application
+│   ├── pages/               # Page routes
+│   ├── components/          # Reusable UI components
+│   └── ...                  # Other frontend components
 │
-├── backend/              # Spring Boot service
-│   ├── controller/       # REST endpoints
-│   ├── service/          # Business logic
-│   └── model/            # Entities and DTOs
+├── career_db_dump.sql       # SQL dump for initializing the MySQL database
+├── podman-compose.yml       # Container orchestration configuration
+├── start.bat                # Windows batch script to start the application using Podman
+├── .gitignore               # Specifies files and directories to be ignored by Git
+└── README.md                # Project documentation
 ```
 
 ---
