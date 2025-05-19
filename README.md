@@ -81,7 +81,6 @@ spring.datasource.url=jdbc:mysql://localhost:3306/next_step_db
 spring.datasource.username=your_user
 spring.datasource.password=your_password
 ```
----
 
 ### Option B: Start with Docker (Podman)
 
