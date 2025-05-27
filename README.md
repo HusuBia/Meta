@@ -15,6 +15,12 @@ Next Step is a modern web application that helps users discover their career pat
 
 ---
 
+## Diagram
+
+![diagram](https://github.com/user-attachments/assets/b0733ce9-640a-495c-97be-d776b30ab81c)
+
+---
+
 ## Key Features
 
 * **Career Path Discovery** – Personalized guidance to help users understand their strengths and interests
