@@ -40,6 +40,10 @@ export default function SignupPage() {
       return;
     }
 
+    // Șterge orice date vechi
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
@@ -48,18 +52,40 @@ export default function SignupPage() {
           fullName: `${form.firstName} ${form.lastName}`,
           email: form.email,
           password: form.password,
-          role: form.role.toLowerCase(), // important pentru backend
+          role: form.role.toLowerCase(),
         }),
       });
 
-      const text = await response.text();
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(text || 'Signup failed');
+        throw new Error(data.message || 'Signup failed');
       }
 
-      console.log('Success:', text);
-      router.push('/dashboard/' + form.role.toLowerCase());
+      const token = data.token;
+      if (!token) {
+        throw new Error("Token missing in response.");
+      }
+
+      localStorage.setItem('token', token);
+
+      // Fetch user profile corect din backend
+      const profileRes = await fetch('http://localhost:8080/user/me', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!profileRes.ok) {
+        throw new Error("Failed to fetch user profile");
+      }
+
+      const profile = await profileRes.json();
+      localStorage.setItem('user', JSON.stringify(profile));
+
+      router.push('/dashboard/' + profile.role.toLowerCase());
 
     } catch (err: any) {
       setError(err.message);
