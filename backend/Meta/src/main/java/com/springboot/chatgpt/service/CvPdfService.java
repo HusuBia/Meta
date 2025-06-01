@@ -17,7 +17,7 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import com.springboot.chatgpt.model.CvData;
 import com.springboot.chatgpt.model.EducationEntry;
 import com.springboot.chatgpt.model.ExperienceEntry;
-import com.springboot.chatgpt.dto.ProjectsEntry;
+import com.springboot.chatgpt.model.ProjectsEntry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,10 +37,10 @@ public class CvPdfService {
             Document doc = new Document(pdf);
 
             PdfFont font = PdfFontFactory.createFont(
-                    "src/main/resources/fonts/DejaVuSans.ttf",
-                    "Identity-H",
+                    getClass().getResource("/fonts/DejaVuSans.ttf").toString(),
                     PdfFontFactory.EmbeddingStrategy.PREFER_EMBEDDED
             );
+
             doc.setFont(font);
 
             Table header = new Table(UnitValue.createPercentArray(new float[]{1, 3}));

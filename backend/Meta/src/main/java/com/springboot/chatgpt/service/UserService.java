@@ -72,15 +72,21 @@ public class UserService {
     }
 
     public UserProfileResponse getProfileByEmail(String email) {
+        System.out.println("[UserService] Searching by email: " + email);
         User user = userRepository.findByEmail(email);
+
         if (user == null) {
+            System.out.println("[UserService] Not found");
             throw new IllegalArgumentException("User not found with email: " + email);
         }
+
+        System.out.println("[UserService] Found: " + user.getFullName() + "/" + user.getEmail());
 
         return new UserProfileResponse(
                 user.getId(), user.getFullName(), user.getEmail(), user.getRole().name(), null
         );
     }
+
 
     public User findByEmail(String email) {
         User user = userRepository.findByEmail(email);

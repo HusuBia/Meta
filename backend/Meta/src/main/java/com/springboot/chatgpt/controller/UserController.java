@@ -26,7 +26,12 @@ public class UserController {
     public ResponseEntity<UserProfileResponse> getMyProfile(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.substring(7);
         String email = jwtService.extractEmail(token);
+        System.out.println("[/user/me] Token: " + token);
+        System.out.println("[/user/me] Extracted email: " + email);
+
         UserProfileResponse profile = userService.getProfileByEmail(email);
+        System.out.println("[/user/me] Returning: " + profile.fullName() + " / " + profile.email());
+
         return ResponseEntity.ok(profile);
     }
 }

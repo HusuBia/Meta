@@ -1,4 +1,4 @@
-package com.springboot.chatgpt.dto;
+package com.springboot.chatgpt.model;
 
 import java.util.List;
 

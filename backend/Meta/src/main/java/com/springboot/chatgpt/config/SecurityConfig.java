@@ -38,6 +38,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
@@ -50,6 +51,7 @@ public class SecurityConfig {
 
         return source;
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

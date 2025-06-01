@@ -22,10 +22,12 @@ public class CvController {
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> generateCvWithImage(
+    public ResponseEntity<?> generateCvWithImage(
             @RequestPart("cv") String cvJson,
             @RequestPart("image") MultipartFile imageFile) {
-        //System.out.println("Received file: " + imageFile.getOriginalFilename());
+
+        System.out.println("cvJson primit:\n" + cvJson);
+        // System.out.println("Received file: " + imageFile.getOriginalFilename());
 
         try {
             CvData data = objectMapper.readValue(cvJson, CvData.class);
@@ -35,7 +37,9 @@ public class CvController {
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdf);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            e.printStackTrace(); // ✅ Afișează eroarea completă în consolă
+            String errorMsg = "Eroare la deserializare: " + e.getMessage();
+            return ResponseEntity.badRequest().body(errorMsg); // ✅ Trimite eroarea și în răspuns
         }
     }
 }

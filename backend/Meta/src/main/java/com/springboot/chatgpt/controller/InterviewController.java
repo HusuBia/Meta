@@ -27,7 +27,7 @@ public class InterviewController {
     }
 
     @PostConstruct
-    public void initDummyUser() {
+    public void initUser() {
         if (!userRepository.existsById(1L)) {
             User u = new User();
             u.setFullName("Demo");
@@ -40,8 +40,8 @@ public class InterviewController {
 
     @PostMapping("/start")
     public InterviewSession start(@RequestBody StartInterviewRequest request) {
-        User dummyUser = userRepository.findById(1L).orElseThrow();
-        return interviewService.startInterview(request, dummyUser);
+        User demoUser = userRepository.findById(1L).orElseThrow();
+        return interviewService.startInterview(request, demoUser);
     }
 
     @PostMapping("/chat")
